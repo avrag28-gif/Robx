@@ -6,8 +6,8 @@ Aplikasi desktop Windows untuk menyiapkan sesi flash sale Shopee. Ada antarmuka 
 
 ## Aplikasi desktop (disarankan)
 1. Download ZIP dari tombol **Code → Download ZIP** di GitHub lalu ekstrak.
-2. Pastikan Python 3.10+ terpasang di Windows.
-3. Klik dua kali `Jalankan-Aplikasi.bat` atau jalankan:
+2. Cara tanpa instalasi Python: buka tab **Actions** di GitHub, pilih workflow **Build Windows desktop app**, buka run yang berhasil, lalu unduh artifact `ShopeeFlashSale-Windows`. Ekstrak ZIP dan jalankan `ShopeeFlashSale.exe`.
+3. Alternatif menjalankan source code: pastikan Python 3.10+ terpasang, lalu klik dua kali `Jalankan-Aplikasi.bat` atau jalankan:
    ```powershell
    py -3 app.py
    ```
