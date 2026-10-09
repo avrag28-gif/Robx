@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 PROFILE_DIR = ROOT / "data" / "chrome-profile"
 
 
