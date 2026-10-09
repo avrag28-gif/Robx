@@ -6,10 +6,11 @@ import json
 import os
 import sys
 import time
+import threading
 import tkinter as tk
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from tkinter import messagebox, ttk
+from tkinter import messagebox, simpledialog, ttk
 from urllib.parse import urlparse
 import webbrowser
 
@@ -161,7 +162,8 @@ class FlashSaleApp:
         actions = tk.Frame(self.root, bg=BG, padx=22, pady=14)
         actions.pack(fill="x")
         self._button(actions, "Buka produk", self.open_selected).pack(side="left", padx=(0, 8))
-        self._button(actions, "Checkout (buka Shopee)", self.checkout_selected, True).pack(side="left", padx=(0, 8))
+        self._button(actions, "Konfigurasi bot", self.configure_selected).pack(side="left", padx=(0, 8))
+        self._button(actions, "Mulai bot", self.checkout_selected, True).pack(side="left", padx=(0, 8))
         self._button(actions, "Hapus", self.remove_selected).pack(side="left", padx=(0, 8))
         self.scheduler_button = self._button(actions, "▶ Aktifkan jadwal", self.toggle_scheduler)
         self.scheduler_button.pack(side="left")
@@ -206,7 +208,7 @@ class FlashSaleApp:
             products = load_products()
             pid = max((int(p.get("id", 0)) for p in products), default=0) + 1
             products.append({"id": pid, "name": name, "url": url,
-                             "sale_at": target.isoformat(), "opened": False})
+                             "sale_at": target.isoformat(), "opened": False, "quantity": 1, "variant": "", "max_price": 0})
             save_products(products)
             self.name_var.set("")
             self.url_var.set("")
@@ -229,6 +231,40 @@ class FlashSaleApp:
         if p:
             webbrowser.open(p["url"], new=2)
             self.status_var.set(f"Halaman produk dibuka: {p['name']}")
+
+    def configure_selected(self):
+        p = self.selected_product()
+        if not p:
+            return
+        qty = simpledialog.askinteger('Konfigurasi bot', 'Jumlah barang (1-99):', initialvalue=int(p.get('quantity', 1)), minvalue=1, maxvalue=99, parent=self.root)
+        if qty is None:
+            return
+        variant = simpledialog.askstring('Konfigurasi bot', 'Nama varian persis (opsional):', initialvalue=p.get('variant', ''), parent=self.root)
+        if variant is None:
+            return
+        ceiling = simpledialog.askinteger('Konfigurasi bot', 'Batas harga maksimum rupiah (0 = nonaktif):', initialvalue=int(p.get('max_price', 0)), minvalue=0, parent=self.root)
+        if ceiling is None:
+            return
+        products = load_products()
+        for item in products:
+            if item['id'] == p['id']:
+                item['quantity'], item['variant'], item['max_price'] = qty, variant.strip(), ceiling
+        save_products(products)
+        self.status_var.set('Konfigurasi bot tersimpan untuk ' + p['name'])
+        self.refresh()
+
+    def start_automation(self, product):
+        def worker():
+            try:
+                from automation import run_product_flow
+                result = run_product_flow(product['url'], quantity=int(product.get('quantity', 1)), variant=product.get('variant', ''), max_price=int(product.get('max_price', 0)), callback=lambda msg: self.root.after(0, lambda m=msg: self.status_var.set(m)))
+                msg = result.get('message', result.get('status', 'selesai'))
+                self.root.after(0, lambda m=msg: self.status_var.set('Bot: ' + m))
+            except Exception as exc:
+                msg = str(exc)
+                self.root.after(0, lambda m=msg: self.status_var.set('Bot gagal: ' + m))
+                self.root.after(0, lambda m=msg: messagebox.showerror('Otomatisasi gagal', m, parent=self.root))
+        threading.Thread(target=worker, daemon=True).start()
 
     def checkout_selected(self):
         p = self.selected_product()
