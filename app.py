@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-import threading
+import sys
 import time
 import tkinter as tk
 from datetime import datetime, timedelta, timezone
@@ -13,7 +13,7 @@ from tkinter import messagebox, ttk
 from urllib.parse import urlparse
 import webbrowser
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 DATA_FILE = ROOT / "data" / "products.json"
 WIB = timezone(timedelta(hours=7), name="WIB")
 BG = "#10151f"
