@@ -272,12 +272,12 @@ class FlashSaleApp:
             return
         if not messagebox.askyesno(
             "Lanjutkan ke Shopee",
-            "Aplikasi akan membuka halaman produk resmi. Periksa varian, alamat, ongkir, dan total harga; lakukan pembayaran serta konfirmasi sendiri. Lanjutkan?",
+            "Bot akan membuka Chrome dan mencoba Beli Sekarang. Periksa varian, alamat, ongkir, dan total harga; lakukan pembayaran serta konfirmasi sendiri. Lanjutkan?",
             parent=self.root
         ):
             return
-        webbrowser.open(p["url"], new=2)
-        self.status_var.set("Shopee dibuka. Selesaikan checkout secara manual di situs/aplikasi resmi.")
+        self.start_automation(p)
+        self.status_var.set("Bot dimulai. Chrome akan terbuka; perhatikan status di bawah.")
 
     def remove_selected(self):
         p = self.selected_product()
@@ -312,7 +312,7 @@ class FlashSaleApp:
                 self.root.bell()
                 messagebox.showinfo(
                     "Waktu flash sale",
-                    f"{p['name']}\n\nHalaman produk dibuka. Lanjutkan checkout sendiri dan ikuti seluruh verifikasi Shopee.",
+                    f"{p['name']}\n\nOtomatisasi Chrome dimulai. Periksa browser dan selesaikan verifikasi resmi jika diminta.",
                     parent=self.root
                 )
         if changed:
