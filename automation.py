@@ -94,7 +94,7 @@ def run_product_flow(url: str, quantity: int = 1, variant: str = "",
                     int(v.replace(".", "").replace(",", ""))
                     for v in re.findall(r"Rp\s*([0-9][0-9.,]{3,})", body)
                 ]
-                if visible_prices and min(visible_prices) > max_price:
+                if visible_prices and max(visible_prices) > max_price:
                     log("Harga yang terbaca melampaui batas. Jangan lanjutkan; periksa harga/total secara manual.")
                     page.wait_for_event("close", timeout=3600000)
                     return {"status": "price_guard", "message": "Pemeriksaan batas harga meminta pemeriksaan manual."}
