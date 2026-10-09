@@ -302,11 +302,8 @@ class FlashSaleApp:
                 continue
             target = datetime.fromisoformat(p["sale_at"]).astimezone(WIB)
             if target <= now_wib():
-                self.status_var.set(f"WAKTU SALE: {p['name']} — membuka halaman produk.")
-                try:
-                    webbrowser.open(p["url"], new=2)
-                except Exception:
-                    pass
+                self.status_var.set(f"WAKTU SALE: {p['name']} — memulai otomatisasi Chrome.")
+                self.start_automation(p)
                 p["opened"] = True
                 changed = True
                 self.root.bell()
